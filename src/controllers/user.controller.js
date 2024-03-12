@@ -369,11 +369,16 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
 
     const channel = await User.aggregate([
         {
+            // pipeline to match the user
+
             $match: {
                 username: username?.toLowerCase()
             },
 
             $lookup: {
+
+                // pipeline to count the number of subscribers
+
                 from: "subsriptions",
                 localField: "_id",
                 foreignField: "channel",
@@ -383,6 +388,9 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
 
         {
             $lookup: {
+
+                // pipeline to count the number of channels which user has subscribed to 
+
                 from: "subscriptions",
                 localField: "_id",
                 foreignField: "subscriber",
@@ -391,6 +399,9 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
         },
 
         {
+
+            // added fields to the original user field
+
             $addFields: {
                 subscribersCount: {
                     $size: "$subscribers"
@@ -411,6 +422,9 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
             }
         },
         {
+
+            // $project:  it gives the projection of selected things
+            
             $project: {
                 fullName: 1,
                 username: 1,
